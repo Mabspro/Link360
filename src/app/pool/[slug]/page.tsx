@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import type { PoolStats } from "@/lib/types";
 import { Thermometer } from "@/components/Thermometer";
 import { PledgeForm } from "@/components/PledgeForm";
 import { PROHIBITED_ITEMS } from "@/lib/faq";
@@ -11,12 +12,19 @@ export default async function PoolPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const supabase = await createClient();
-  const { data: stats } = await supabase
-    .from("pool_stats")
-    .select("*")
-    .eq("slug", slug)
-    .single();
+  let stats: PoolStats | null = null;
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("pool_stats")
+      .select("*")
+      .eq("slug", slug)
+      .single();
+    stats = data;
+  } catch (e) {
+    console.error("[Link360] Pool page Supabase error:", e);
+    notFound();
+  }
 
   if (!stats) notFound();
 

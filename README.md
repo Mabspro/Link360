@@ -46,20 +46,34 @@ MVP web app to collect shipping interest/pledges and display a public container 
 
 ## Deploy (Vercel + Supabase)
 
-1. **Supabase**
+**Live:** [link360.vercel.app](https://link360.vercel.app) · **Source:** GitHub `Mabspro/Link360` → branch `main`
 
-   - Create a production Supabase project (or use the same for dev).
-   - Run the same migrations in the SQL Editor.
+1. **Vercel (already connected)**
 
-2. **Vercel**
+   - Repo is linked; pushes to `main` auto-deploy.
+   - **Add environment variables** in Vercel: Project → **Settings** → **Environment Variables**. Use **Production** (and **Preview** if you want). Add:
 
-   - Import the repo in Vercel and deploy.
-   - In Project Settings → Environment Variables, add all vars from `.env.example` (use Production and Preview as needed).
-   - For admin auth, set `LINK360_ADMIN_EMAILS` to your production admin emails.
+   | Name | Value | Notes |
+   |------|--------|------|
+   | `NEXT_PUBLIC_SUPABASE_URL` | `https://your-project.supabase.co` | From Supabase API settings |
+   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon/public key | From Supabase API settings |
+   | `SUPABASE_SERVICE_ROLE_KEY` | service_role key | Secret; from Supabase API settings |
+   | `LINK360_ADMIN_EMAILS` | `admin@example.com` | Comma-separated emails for `/admin` |
+   | `RESEND_API_KEY` | (optional) | For pledge confirmation emails |
+   | `EMAIL_FROM` | (optional) | e.g. `Link360 <noreply@yourdomain.com>` |
 
-3. **Auth redirect (optional)**
+   After saving, trigger a **Redeploy** (Deployments → ⋮ → Redeploy) so the new env is used.
 
-   In Supabase Dashboard → Authentication → URL Configuration, set Site URL to your Vercel URL and add `https://your-app.vercel.app/**` to Redirect URLs.
+2. **Supabase**
+
+   - Use your existing project (or create one). Run migrations in SQL Editor: `001_initial_schema.sql`, then `002_rls.sql`.
+
+3. **Supabase Auth redirect (for admin login)**
+
+   In **Supabase** → **Authentication** → **URL Configuration**:
+
+   - **Site URL:** `https://link360.vercel.app`
+   - **Redirect URLs:** add `https://link360.vercel.app/**` (and `https://link360-l0b3nte2r-leverage-labs.vercel.app/**` if you use preview URLs)
 
 ## Project layout
 

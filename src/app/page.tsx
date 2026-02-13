@@ -2,16 +2,25 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PoolCard } from "@/components/PoolCard";
 
-export default async function HomePage() {
+async function getPools() {
   const supabase = await createClient();
-  const { data: stats } = await supabase
+  const { data } = await supabase
     .from("pool_stats")
     .select("*")
     .eq("status", "collecting")
     .eq("is_public", true)
     .order("title");
+  return data ?? [];
+}
 
-  const pools = stats ?? [];
+export default async function HomePage() {
+  let pools: Awaited<ReturnType<typeof getPools>> = [];
+  try {
+    pools = await getPools();
+  } catch (e) {
+    console.error("[Link360] Home page Supabase error:", e);
+    // Page still renders with empty pools so users see the site
+  }
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
