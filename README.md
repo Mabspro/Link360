@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Link360 Shipping – Interest Ledger
 
-## Getting Started
+MVP web app to collect shipping interest/pledges and display a public container completion thermometer for NorCal → Zambia (Lusaka, Ndola). Interest-only; no payments.
 
-First, run the development server:
+## Tech
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Next.js 14** (App Router) + TypeScript + TailwindCSS
+- **Supabase**: Postgres, Auth, RLS
+- **Forms**: Zod + React Hook Form
+- **Email**: Resend (or console stub if no API key)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Local development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Clone and install**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```bash
+   cd link360
+   npm install
+   ```
 
-## Learn More
+2. **Supabase**
 
-To learn more about Next.js, take a look at the following resources:
+   - Create a project at [supabase.com](https://supabase.com).
+   - In the SQL Editor, run the migrations in order:
+     - `supabase/migrations/001_initial_schema.sql`
+     - `supabase/migrations/002_rls.sql`
+   - In Authentication → Providers, enable Email and set a password for your admin user (or use Magic Link).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Environment**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   Copy `.env.example` to `.env.local` and set:
 
-## Deploy on Vercel
+   - `NEXT_PUBLIC_SUPABASE_URL` – project URL
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` – anon key
+   - `SUPABASE_SERVICE_ROLE_KEY` – service role key (from Project Settings → API)
+   - `LINK360_ADMIN_EMAILS` – comma-separated admin emails (e.g. `you@example.com`)
+   - Optional: `RESEND_API_KEY` and `EMAIL_FROM` for real email; otherwise confirmations are logged to the console.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. **Run**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   npm run dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000). Sign in at `/admin/login` with an email in `LINK360_ADMIN_EMAILS` to access the admin dashboard.
+
+## Deploy (Vercel + Supabase)
+
+1. **Supabase**
+
+   - Create a production Supabase project (or use the same for dev).
+   - Run the same migrations in the SQL Editor.
+
+2. **Vercel**
+
+   - Import the repo in Vercel and deploy.
+   - In Project Settings → Environment Variables, add all vars from `.env.example` (use Production and Preview as needed).
+   - For admin auth, set `LINK360_ADMIN_EMAILS` to your production admin emails.
+
+3. **Auth redirect (optional)**
+
+   In Supabase Dashboard → Authentication → URL Configuration, set Site URL to your Vercel URL and add `https://your-app.vercel.app/**` to Redirect URLs.
+
+## Project layout
+
+- **`/`** – Home: explanation, active pool cards, CTA to pledge
+- **`/pool/[slug]`** – Public pool page: thermometer, stats, pledge form, prohibited items
+- **`/pricing`** – Pricing explainer and example box calculations
+- **`/faq`** – Rules, prohibited items, how it works
+- **`/admin`** – Redirects to login or dashboard
+- **`/admin/login`** – Supabase Auth sign-in (admin emails only)
+- **`/admin/dashboard`** – List pools, create/edit, view pledges
+- **`/admin/pools/[id]`** – Pledges for a pool: filter, export CSV, set status and internal cargo
+
+## Data model
+
+- **profiles** – Optional user profile (auth)
+- **pools** – Shipping pools (destination, container type, threshold, status)
+- **pledges** – Pledge rows (contact, dimensions, computed ft³/cost, status, internal cargo flag)
+- **admin_settings** – Single row: rate per in³, pickup fees
+- **pool_stats** – View: per-pool aggregates (total ft³, revenue, pledge count, % full)
+
+RLS: public can read public pools and insert pledges; detailed pledge read and pool write use the service role (admin only).
+
+## Quality
+
+- Type-safe (TypeScript, Zod)
+- Accessible UI (labels, progressbar, focus states)
+- No payments; no overengineering
