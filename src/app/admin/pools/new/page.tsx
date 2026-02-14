@@ -27,6 +27,10 @@ export default async function NewPoolPage() {
           announce_threshold_pct: DEFAULT_ANNOUNCE_THRESHOLD_PCT,
           status: "collecting",
           is_public: true,
+          ships_at: "",
+          target_ship_cost: undefined,
+          sponsor_id: "",
+          new_sponsor: undefined,
         }}
       />
     </div>

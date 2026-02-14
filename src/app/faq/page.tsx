@@ -2,17 +2,17 @@ import { FAQ_ITEMS } from "@/lib/faq";
 
 export default function FAQPage() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="text-3xl font-bold text-zinc-900">FAQ</h1>
-      <p className="mt-2 text-zinc-600">
+    <div className="container-narrow section">
+      <h1 className="heading-1">FAQ</h1>
+      <p className="text-body-lg mt-2">
         How it works, rules, and prohibited items.
       </p>
 
       <dl className="mt-8 space-y-6">
         {FAQ_ITEMS.map((item) => (
-          <div key={item.q}>
-            <dt className="font-semibold text-zinc-900">{item.q}</dt>
-            <dd className="mt-1 text-zinc-600">{item.a}</dd>
+          <div key={item.q} className="card p-6">
+            <dt className="heading-4">{item.q}</dt>
+            <dd className="mt-2 text-body">{item.a}</dd>
           </div>
         ))}
       </dl>

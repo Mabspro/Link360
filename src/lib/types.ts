@@ -5,6 +5,15 @@ export type PickupZone = "in_city" | "out_of_city";
 export type ItemMode = "standard_box" | "custom_dims" | "estimate";
 export type PledgeStatus = "pledged" | "confirmed" | "withdrawn" | "shipped";
 
+export interface Sponsor {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  company: string | null;
+  created_at: string;
+}
+
 export interface Pool {
   id: string;
   slug: string;
@@ -15,6 +24,9 @@ export interface Pool {
   announce_threshold_pct: number;
   status: PoolStatus;
   is_public: boolean;
+  ships_at: string | null;
+  target_ship_cost: number | null;
+  sponsor_id: string | null;
   created_at: string;
 }
 
@@ -28,12 +40,27 @@ export interface PoolStats {
   announce_threshold_pct: number;
   status: PoolStatus;
   is_public?: boolean;
+  ships_at: string | null;
+  sponsor_id: string | null;
+  sponsor_name: string | null;
+  sponsor_company: string | null;
   total_ft3: number;
   total_internal_ft3: number;
   total_paid_ft3: number;
   est_revenue: number;
+  target_ship_cost: number | null;
+  ship_cost_reach_pct: number | null;
   pledge_count: number;
   pct_full: number;
+}
+
+export interface PoolUpdate {
+  id: string;
+  pool_id: string;
+  kind: "update" | "announcement" | "loading" | "shipped" | "tracking";
+  title: string | null;
+  body: string | null;
+  created_at: string;
 }
 
 export interface Pledge {

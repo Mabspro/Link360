@@ -34,6 +34,12 @@ export default async function AdminPoolDetailPage({
     .eq("pool_id", id)
     .single();
 
+  const { data: intakeDocs } = await supabase
+    .from("intake_documents")
+    .select("id, user_email, file_path, created_at")
+    .eq("pool_id", id)
+    .order("created_at", { ascending: false });
+
   return (
     <div>
       <Link href="/admin/dashboard" className="text-sm text-zinc-500 hover:underline">
@@ -64,6 +70,30 @@ export default async function AdminPoolDetailPage({
           <span>Fill: {Number(stats.pct_full).toFixed(0)}%</span>
         </div>
       )}
+      {(intakeDocs?.length ?? 0) > 0 && (
+        <div className="mt-6 rounded-lg border border-zinc-200 bg-white p-4">
+          <h2 className="text-sm font-semibold text-zinc-800 mb-2">Packing list uploads</h2>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-zinc-200 text-left">
+                <th className="py-2 font-medium">Email</th>
+                <th className="py-2 font-medium">Uploaded</th>
+              </tr>
+            </thead>
+            <tbody>
+              {intakeDocs?.map((doc) => (
+                <tr key={doc.id} className="border-b border-zinc-100">
+                  <td className="py-2 text-zinc-700">{doc.user_email}</td>
+                  <td className="py-2 text-zinc-500">
+                    {new Date(doc.created_at).toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       <div className="mt-6">
         <PledgesTable
           poolId={id}

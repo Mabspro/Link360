@@ -14,7 +14,10 @@ export default async function EditPoolPage({
   if (!user) redirect("/admin/login");
 
   const supabase = createServiceRoleClient();
-  const { data: pool } = await supabase.from("pools").select("*").eq("id", id).single();
+  const [{ data: pool }, { data: sponsors }] = await Promise.all([
+    supabase.from("pools").select("*").eq("id", id).single(),
+    supabase.from("sponsors").select("id, name, email, company").order("name"),
+  ]);
   if (!pool) notFound();
 
   return (
@@ -34,7 +37,12 @@ export default async function EditPoolPage({
           announce_threshold_pct: Number(pool.announce_threshold_pct),
           status: pool.status,
           is_public: pool.is_public,
+          ships_at: pool.ships_at ? String(pool.ships_at).slice(0, 10) : "",
+          target_ship_cost: pool.target_ship_cost != null ? Number(pool.target_ship_cost) : undefined,
+          sponsor_id: pool.sponsor_id ?? "",
+          new_sponsor: undefined,
         }}
+        initialSponsors={sponsors ?? []}
       />
     </div>
   );

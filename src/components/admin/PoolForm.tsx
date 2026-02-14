@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,40 +9,81 @@ import {
   DEFAULT_20FT_USABLE_FT3,
   DEFAULT_40FT_USABLE_FT3,
 } from "@/lib/constants";
+import type { Sponsor } from "@/lib/types";
 
 interface PoolFormProps {
   poolId?: string;
   defaultValues: PoolFormValues;
+  /** Pass from server on edit so sponsor dropdown shows current value on first paint */
+  initialSponsors?: Pick<Sponsor, "id" | "name" | "email" | "company">[];
 }
 
-export function PoolForm({ poolId, defaultValues }: PoolFormProps) {
+export function PoolForm({ poolId, defaultValues, initialSponsors = [] }: PoolFormProps) {
   const router = useRouter();
+  const [sponsors, setSponsors] = useState<Pick<Sponsor, "id" | "name" | "email" | "company">[]>(initialSponsors);
   const {
     register,
     handleSubmit,
+    watch,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<PoolFormValues>({
     resolver: zodResolver(poolFormSchema) as Resolver<PoolFormValues>,
     defaultValues,
   });
 
+  const sponsorId = watch("sponsor_id");
+  const useNewSponsor = sponsorId === "__new__";
+
+  useEffect(() => {
+    if (initialSponsors.length > 0) return; // already have from server
+    fetch("/api/admin/sponsors", { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : []))
+      .then(setSponsors)
+      .catch(() => setSponsors([]));
+  }, [initialSponsors.length]);
+
   async function onSubmit(data: PoolFormValues) {
-    const url = poolId ? `/api/admin/pools/${poolId}` : "/api/admin/pools";
-    const res = await fetch(url, {
-      method: poolId ? "PATCH" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) {
+    try {
+      const payload: Record<string, unknown> = { ...data };
+      // Never send new_sponsor unless we're actually adding a new one with valid name/email
+      delete payload.new_sponsor;
+      if (data.sponsor_id === "__new__") {
+        delete payload.sponsor_id;
+        if (data.new_sponsor?.name?.trim() && data.new_sponsor?.email?.trim()) {
+          payload.new_sponsor = data.new_sponsor;
+        } else {
+          payload.sponsor_id = null;
+        }
+      } else if (!data.sponsor_id?.trim()) {
+        payload.sponsor_id = null;
+      }
+      const url = poolId ? `/api/admin/pools/${poolId}` : "/api/admin/pools";
+      const res = await fetch(url, {
+        method: poolId ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        credentials: "include",
+      });
       const j = await res.json().catch(() => ({}));
-      throw new Error(j.error ?? "Failed to save");
+      if (!res.ok) {
+        setError("root", { message: j.error ?? (res.status === 401 ? "Please sign in again" : "Failed to save") });
+        return;
+      }
+      router.push("/admin/dashboard");
+      router.refresh();
+    } catch (e) {
+      setError("root", { message: e instanceof Error ? e.message : "Something went wrong" });
     }
-    router.push("/admin/dashboard");
-    router.refresh();
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="mt-6 max-w-md space-y-4">
+    <form
+      onSubmit={handleSubmit(onSubmit, (err) => {
+        setError("root", { message: Object.values(err).map((e) => e?.message).filter(Boolean).join(" ") || "Please fix the errors above." });
+      })}
+      className="mt-6 max-w-md space-y-4"
+    >
       <div>
         <label className="mb-1 block text-sm font-medium">Slug (URL)</label>
         <input
@@ -101,6 +143,60 @@ export function PoolForm({ poolId, defaultValues }: PoolFormProps) {
         />
       </div>
       <div>
+        <label className="mb-1 block text-sm font-medium">Ship window (date)</label>
+        <input
+          type="date"
+          {...register("ships_at")}
+          className="w-full rounded-lg border border-zinc-300 px-3 py-2"
+        />
+        <p className="mt-1 text-xs text-zinc-500">Used to sort pools by soonest to go on the home page</p>
+      </div>
+      <div>
+        <label className="mb-1 block text-sm font-medium">Target ship cost ($)</label>
+        <input
+          type="number"
+          min={0}
+          step={1}
+          {...register("target_ship_cost")}
+          placeholder="Optional"
+          className="w-full rounded-lg border border-zinc-300 px-3 py-2"
+        />
+        <p className="mt-1 text-xs text-zinc-500">Shows &quot;Est. ship cost reach&quot; % (enables future donate-to-ship / non-profit)</p>
+      </div>
+      <div>
+        <label className="mb-1 block text-sm font-medium">Pool sponsor (container owner)</label>
+        <select {...register("sponsor_id")} className="w-full rounded-lg border border-zinc-300 px-3 py-2">
+          <option value="">— No sponsor —</option>
+          {sponsors.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.company?.trim() || s.name} {s.company ? `(${s.name})` : ""}
+            </option>
+          ))}
+          <option value="__new__">+ Add new sponsor</option>
+        </select>
+        <p className="mt-1 text-xs text-zinc-500">Shown as &quot;Listed by …&quot; on the pool</p>
+        {useNewSponsor && (
+          <div className="mt-3 space-y-2 rounded-lg border border-zinc-200 bg-zinc-50/50 p-3">
+            <input
+              {...register("new_sponsor.name")}
+              placeholder="Sponsor name"
+              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+            />
+            <input
+              {...register("new_sponsor.email")}
+              type="email"
+              placeholder="Sponsor email"
+              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+            />
+            <input
+              {...register("new_sponsor.company")}
+              placeholder="Company (optional)"
+              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+            />
+          </div>
+        )}
+      </div>
+      <div>
         <label className="mb-1 block text-sm font-medium">Status</label>
         <select {...register("status")} className="w-full rounded-lg border border-zinc-300 px-3 py-2">
           <option value="collecting">collecting</option>
@@ -112,6 +208,9 @@ export function PoolForm({ poolId, defaultValues }: PoolFormProps) {
         <input type="checkbox" {...register("is_public")} className="rounded" />
         <label className="text-sm">Public (visible on home)</label>
       </div>
+      {errors.root?.message && (
+        <p className="text-sm text-red-600">{errors.root.message}</p>
+      )}
       <div className="flex gap-3 pt-2">
         <button
           type="submit"

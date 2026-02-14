@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { pledgeFormSchema, type PledgeFormValues } from "@/lib/validations";
 import { STANDARD_BOXES, ESTIMATE_FT3, in3ToFt3, ft3ToIn3 } from "@/lib/constants";
 import { estShippingCost, estPickupFee } from "@/lib/pricing";
+import type { PricingConfig } from "./SpacePriceCalculator";
 function computeIn3(values: PledgeFormValues): number {
   const qty = values.quantity ?? 1;
   if (values.item_mode === "standard_box" && values.standard_box_code) {
@@ -30,15 +31,18 @@ interface PledgeFormProps {
   poolSlug: string;
   poolTitle: string;
   onSuccess?: () => void;
+  pricing?: PricingConfig | null;
 }
 
-export function PledgeForm({ poolId, poolTitle, onSuccess }: PledgeFormProps) {
+export function PledgeForm({ poolId, poolTitle, onSuccess, pricing }: PledgeFormProps) {
   const [submitted, setSubmitted] = useState(false);
+  const [packingFile, setPackingFile] = useState<File | null>(null);
   const {
     register,
     handleSubmit,
     watch,
     setValue,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<PledgeFormValues>({
     resolver: zodResolver(pledgeFormSchema) as Resolver<PledgeFormValues>,
@@ -56,18 +60,35 @@ export function PledgeForm({ poolId, poolTitle, onSuccess }: PledgeFormProps) {
 
   const in3Val = computeIn3(values);
   const ft3Val = in3ToFt3(in3Val);
-  const estShipping = estShippingCost(in3Val);
-  const estPickup = estPickupFee(pickupZone ?? "in_city", quantity ?? 1);
+  const estShipping = estShippingCost(in3Val, pricing ?? undefined);
+  const estPickup = estPickupFee(pickupZone ?? "in_city", quantity ?? 1, pricing ?? undefined);
 
   useEffect(() => {
     if (itemMode === "estimate" && !values.estimate_category) setValue("estimate_category", "medium");
   }, [itemMode, setValue, values.estimate_category]);
 
   async function onSubmit(data: PledgeFormValues) {
+    setError("root", { message: "" });
     const in3Final = computeIn3(data);
     const ft3Final = in3ToFt3(in3Final);
-    const shippingFinal = estShippingCost(in3Final);
-    const pickupFinal = estPickupFee(data.pickup_zone, data.quantity);
+    const shippingFinal = estShippingCost(in3Final, pricing ?? undefined);
+    const pickupFinal = estPickupFee(data.pickup_zone, data.quantity, pricing ?? undefined);
+
+    if (packingFile && packingFile.size > 0) {
+      const formData = new FormData();
+      formData.set("file", packingFile);
+      formData.set("pool_id", poolId);
+      formData.set("user_email", data.user_email);
+      const intakeRes = await fetch("/api/intake", {
+        method: "POST",
+        body: formData,
+      });
+      if (!intakeRes.ok) {
+        const j = await intakeRes.json().catch(() => ({}));
+        setError("root", { message: j.error ?? "Upload failed. You can submit without the file." });
+        return;
+      }
+    }
 
     const res = await fetch("/api/pledges", {
       method: "POST",
@@ -96,7 +117,8 @@ export function PledgeForm({ poolId, poolTitle, onSuccess }: PledgeFormProps) {
 
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
-      throw new Error(j.error ?? "Failed to submit pledge");
+      setError("root", { message: j.error ?? "Failed to submit pledge" });
+      return;
     }
     setSubmitted(true);
     onSuccess?.();
@@ -115,12 +137,17 @@ export function PledgeForm({ poolId, poolTitle, onSuccess }: PledgeFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {errors.root?.message && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+          {errors.root.message}
+        </div>
+      )}
       <div>
         <label className="mb-1 block text-sm font-medium text-zinc-700">Email *</label>
         <input
           type="email"
           {...register("user_email")}
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="input"
         />
         {errors.user_email && (
           <p className="mt-1 text-sm text-red-600">{errors.user_email.message}</p>
@@ -131,7 +158,7 @@ export function PledgeForm({ poolId, poolTitle, onSuccess }: PledgeFormProps) {
         <input
           type="text"
           {...register("user_name")}
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="input"
         />
         {errors.user_name && (
           <p className="mt-1 text-sm text-red-600">{errors.user_name.message}</p>
@@ -142,14 +169,14 @@ export function PledgeForm({ poolId, poolTitle, onSuccess }: PledgeFormProps) {
         <input
           type="tel"
           {...register("user_phone")}
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="input"
         />
       </div>
       <div>
         <label className="mb-1 block text-sm font-medium text-zinc-700">Pickup</label>
         <select
           {...register("pickup_zone")}
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="input"
         >
           <option value="in_city">In city ($25)</option>
           <option value="out_of_city">Out of city ($25 + $15/box)</option>
@@ -167,7 +194,7 @@ export function PledgeForm({ poolId, poolTitle, onSuccess }: PledgeFormProps) {
         <label className="mb-1 block text-sm font-medium text-zinc-700">Item</label>
         <select
           {...register("item_mode")}
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="input"
         >
           <option value="standard_box">Standard box (S / M / L / TV)</option>
           <option value="custom_dims">Custom dimensions</option>
@@ -248,10 +275,27 @@ export function PledgeForm({ poolId, poolTitle, onSuccess }: PledgeFormProps) {
         <textarea {...register("notes")} rows={2} className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
       </div>
 
+      <div>
+        <label htmlFor="pledge-packing-file" className="mb-1 block text-sm font-medium text-zinc-700">
+          Packing list (optional)
+        </label>
+        <p className="mb-2 text-xs text-zinc-500">
+          Optional: Upload a packing list to help us review your shipment. PDF, CSV, Excel, or image. Max 10MB.
+        </p>
+        <input
+          id="pledge-packing-file"
+          type="file"
+          accept=".pdf,.csv,.xlsx,.xls,image/*"
+          className="w-full text-sm text-zinc-600 file:mr-3 file:rounded-lg file:border-0 file:bg-ocean file:px-4 file:py-2 file:text-sm file:font-medium file:text-white file:hover:bg-ocean-700"
+          onChange={(e) => setPackingFile(e.target.files?.[0] ?? null)}
+          aria-label="Upload packing list (optional)"
+        />
+      </div>
+
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full rounded-lg bg-emerald-600 px-4 py-3 font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+        className="btn-primary w-full py-3 disabled:opacity-50"
       >
         {isSubmitting ? "Submitting…" : "Submit pledge"}
       </button>
