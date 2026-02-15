@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { MapPin, Package, DollarSign, Users, Clock, ArrowRight } from "lucide-react";
 import type { PoolStats } from "@/lib/types";
-import { SHIPPING_EMOJI } from "@/lib/constants";
+import { SHIPPING_EMOJI, DEFAULT_ORIGIN_LABEL } from "@/lib/constants";
+import { setPledgeIntent } from "@/lib/pledge-guide";
 
 interface PoolCardProps {
   pool: PoolStats;
@@ -31,6 +32,36 @@ export function PoolCard({ pool, index = 0 }: PoolCardProps) {
       color: "bg-green-100 text-green-700",
       icon: "🎉",
     },
+    loading: {
+      label: "Loading",
+      color: "bg-amber-100 text-amber-700",
+      icon: "📦",
+    },
+    shipped: {
+      label: "Shipped",
+      color: "bg-indigo-100 text-indigo-700",
+      icon: "🚢",
+    },
+    arrived_port: {
+      label: "At Port",
+      color: "bg-cyan-100 text-cyan-700",
+      icon: "⚓",
+    },
+    arrived_destination: {
+      label: "In Zambia",
+      color: "bg-emerald-100 text-emerald-700",
+      icon: "🇿🇲",
+    },
+    cleared: {
+      label: "Cleared",
+      color: "bg-teal-100 text-teal-700",
+      icon: "✅",
+    },
+    ready_pickup: {
+      label: "Ready for Pickup",
+      color: "bg-green-100 text-green-800",
+      icon: "🏁",
+    },
     closed: {
       label: "Closed",
       color: "bg-gray-100 text-gray-600",
@@ -48,7 +79,10 @@ export function PoolCard({ pool, index = 0 }: PoolCardProps) {
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
       className="group"
     >
-      <Link href={`/pool/${pool.slug}`}>
+      <Link
+        href={`/pool/${pool.slug}`}
+        onClick={() => isCollecting && setPledgeIntent("from_pool_list")}
+      >
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
           <div className="p-6 pb-4">
             <div className="flex items-start justify-between mb-3">
@@ -68,7 +102,7 @@ export function PoolCard({ pool, index = 0 }: PoolCardProps) {
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-500">
               <span className="flex items-center gap-1">
                 <MapPin className="w-4 h-4" />
-                NorCal → {pool.destination_city}
+                {pool.origin_region || DEFAULT_ORIGIN_LABEL} → {pool.destination_city}
               </span>
               <span className="text-gray-300">•</span>
               <span>{pool.container_type} container</span>
@@ -182,7 +216,10 @@ export function PoolCard({ pool, index = 0 }: PoolCardProps) {
                 </p>
               </div>
             )}
-            <span className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-ocean text-white rounded-xl font-medium hover:bg-ocean-800 transition-colors group/btn">
+            <span
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-ocean text-white rounded-xl font-medium hover:bg-ocean-800 transition-colors group/btn"
+              {...(index === 0 && isCollecting ? { "data-guide": "pool-cta" } : {})}
+            >
               {isCollecting ? "Pledge Your Space" : "View Details"}
               <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
             </span>

@@ -73,11 +73,6 @@ const config: Config = {
         "button-hover": "0 6px 20px rgba(230, 81, 0, 0.35)",
         "input-focus": "0 0 0 3px rgba(74, 144, 217, 0.2)",
       },
-      animation: {
-        "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-        "slide-up": "slideUp 0.5s ease-out",
-        "fade-in": "fadeIn 0.3s ease-out",
-      },
       keyframes: {
         slideUp: {
           "0%": { transform: "translateY(20px)", opacity: "0" },
@@ -87,6 +82,16 @@ const config: Config = {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
         },
+        guidePulse: {
+          "0%, 100%": { boxShadow: "0 0 0 0 rgba(10, 37, 64, 0.35)" },
+          "50%": { boxShadow: "0 0 0 6px rgba(10, 37, 64, 0.15)" },
+        },
+      },
+      animation: {
+        "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "slide-up": "slideUp 0.5s ease-out",
+        "fade-in": "fadeIn 0.3s ease-out",
+        "guide-pulse": "guidePulse 2s ease-in-out infinite",
       },
       transitionTimingFunction: {
         "bounce-out": "cubic-bezier(0.34, 1.56, 0.64, 1)",

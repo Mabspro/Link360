@@ -66,6 +66,7 @@ export async function PATCH(
   if (data.is_public !== undefined) updates.is_public = data.is_public;
   if (data.ships_at !== undefined) updates.ships_at = data.ships_at?.trim() || null;
   if (data.target_ship_cost !== undefined) updates.target_ship_cost = data.target_ship_cost != null && data.target_ship_cost > 0 ? data.target_ship_cost : null;
+  if (data.origin_region !== undefined) updates.origin_region = data.origin_region?.trim() || null;
 
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: "No fields to update" }, { status: 400 });

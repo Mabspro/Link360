@@ -29,6 +29,7 @@ export default async function NewPoolPage() {
           is_public: true,
           ships_at: "",
           target_ship_cost: undefined,
+          origin_region: "NorCal",
           sponsor_id: "",
           new_sponsor: undefined,
         }}

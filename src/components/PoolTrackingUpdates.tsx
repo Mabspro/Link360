@@ -11,7 +11,11 @@ const kindConfig: Record<
   update: { label: "Update", icon: Info, color: "text-gray-600 bg-gray-100" },
   announcement: { label: "Announcement", icon: Megaphone, color: "text-blue-700 bg-blue-100" },
   loading: { label: "Loading", icon: Loader2, color: "text-amber-700 bg-amber-100" },
-  shipped: { label: "Shipped", icon: Ship, color: "text-green-700 bg-green-100" },
+  shipped: { label: "Shipped", icon: Ship, color: "text-indigo-700 bg-indigo-100" },
+  arrived_port: { label: "At Port", icon: MapPin, color: "text-cyan-700 bg-cyan-100" },
+  arrived_destination: { label: "In Zambia", icon: MapPin, color: "text-emerald-700 bg-emerald-100" },
+  cleared: { label: "Cleared Customs", icon: Info, color: "text-teal-700 bg-teal-100" },
+  ready_pickup: { label: "Ready for Pickup", icon: Info, color: "text-green-700 bg-green-100" },
   tracking: { label: "Tracking", icon: MapPin, color: "text-purple-700 bg-purple-100" },
 };
 

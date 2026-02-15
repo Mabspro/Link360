@@ -58,7 +58,7 @@ export const poolFormSchema = z.object({
   container_type: z.enum(["20ft", "40ft"]),
   usable_ft3: z.coerce.number().positive(),
   announce_threshold_pct: z.coerce.number().min(0).max(100),
-  status: z.enum(["collecting", "announced", "closed"]),
+  status: z.enum(["collecting", "announced", "loading", "shipped", "arrived_port", "arrived_destination", "cleared", "ready_pickup", "closed"]),
   is_public: z.boolean(),
   ships_at: z.string().optional().nullable(),
   target_ship_cost: z.coerce.number().min(0).optional().nullable(),

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "contact@link360.com";
+const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "shipping@link360shipping.com";
 
 export default function ContactPage() {
   return (

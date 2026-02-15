@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Package, Shield, Users, TrendingUp } from "lucide-react";
+import { Package, Shield, Users, TrendingUp } from "lucide-react";
+import { HeroCtaWithIntent } from "./HeroCtaWithIntent";
 
 export function HomeHero() {
   return (
@@ -27,10 +28,7 @@ export function HomeHero() {
             and ship when we hit our goal. No payment until confirmed.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Link href="#pools" className="btn-primary btn-lg">
-              Pledge Your Space
-              <ArrowRight className="w-5 h-5" />
-            </Link>
+            <HeroCtaWithIntent />
             <Link href="#how-it-works" className="btn-secondary btn-lg">
               See How It Works
             </Link>

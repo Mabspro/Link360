@@ -9,6 +9,7 @@ import { poolFormSchema, type PoolFormValues } from "@/lib/validations";
 import {
   DEFAULT_20FT_USABLE_FT3,
   DEFAULT_40FT_USABLE_FT3,
+  ORIGIN_REGIONS,
 } from "@/lib/constants";
 import type { Sponsor } from "@/lib/types";
 
@@ -128,6 +129,18 @@ export function PoolForm({ poolId, defaultValues, initialSponsors = [] }: PoolFo
         </div>
       </div>
       <div>
+        <label className="mb-1 block text-sm font-medium">Origin region (US)</label>
+        <select {...register("origin_region")} className="w-full rounded-lg border border-zinc-300 px-3 py-2">
+          <option value="">— Not set —</option>
+          {ORIGIN_REGIONS.map((r) => (
+            <option key={r} value={r}>
+              {r}
+            </option>
+          ))}
+        </select>
+        <p className="mt-1 text-xs text-zinc-500">Staging for regional browsing; sponsors can be nationwide (US)</p>
+      </div>
+      <div>
         <label className="mb-1 block text-sm font-medium">Usable ft³</label>
         <input
           type="number"
@@ -209,6 +222,12 @@ export function PoolForm({ poolId, defaultValues, initialSponsors = [] }: PoolFo
         <select {...register("status")} className="w-full rounded-lg border border-zinc-300 px-3 py-2">
           <option value="collecting">collecting</option>
           <option value="announced">announced</option>
+          <option value="loading">loading</option>
+          <option value="shipped">shipped</option>
+          <option value="arrived_port">arrived at port</option>
+          <option value="arrived_destination">arrived at destination</option>
+          <option value="cleared">cleared customs</option>
+          <option value="ready_pickup">ready for pickup</option>
           <option value="closed">closed</option>
         </select>
       </div>

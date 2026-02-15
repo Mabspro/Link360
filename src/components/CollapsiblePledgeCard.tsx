@@ -11,16 +11,34 @@ interface CollapsiblePledgeCardProps {
   poolSlug: string;
   poolTitle: string;
   pricing?: PricingConfig | null;
+  initialExpanded?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
+  onFormInteraction?: () => void;
 }
 
-export function CollapsiblePledgeCard({ poolId, poolSlug, poolTitle, pricing }: CollapsiblePledgeCardProps) {
-  const [expanded, setExpanded] = useState(false);
+export function CollapsiblePledgeCard({
+  poolId,
+  poolSlug,
+  poolTitle,
+  pricing,
+  initialExpanded = false,
+  onExpandedChange,
+  onFormInteraction,
+}: CollapsiblePledgeCardProps) {
+  const [expanded, setExpanded] = useState(initialExpanded);
+
+  const toggle = () => {
+    const next = !expanded;
+    setExpanded(next);
+    onExpandedChange?.(next);
+  };
 
   return (
     <div className="card overflow-hidden border-l-4 border-l-ocean bg-blue-50/40 shadow-sm">
       <button
         type="button"
-        onClick={() => setExpanded((e) => !e)}
+        data-guide="pledge-accordion"
+        onClick={toggle}
         aria-expanded={expanded}
         aria-controls="pledge-form-panel"
         className="w-full flex items-center justify-between gap-4 p-6 text-left hover:bg-blue-100/50 transition-colors rounded-r-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
@@ -48,7 +66,7 @@ export function CollapsiblePledgeCard({ poolId, poolSlug, poolTitle, pricing }: 
             className="border-t border-gray-100 overflow-hidden"
           >
             <div className="p-6 pt-4 bg-gray-50/50">
-              <PledgeForm poolId={poolId} poolSlug={poolSlug} poolTitle={poolTitle} pricing={pricing} />
+              <PledgeForm poolId={poolId} poolSlug={poolSlug} poolTitle={poolTitle} pricing={pricing} onFormInteraction={onFormInteraction} />
             </div>
           </motion.div>
         )}

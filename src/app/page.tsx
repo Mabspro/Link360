@@ -4,6 +4,9 @@ import { PoolCard } from "@/components/PoolCard";
 import { HomeHero } from "@/components/HomeHero";
 import { HowItWorks } from "@/components/HowItWorks";
 import { EmptyPoolsState } from "@/components/EmptyPoolsState";
+import { PoolsSectionGuide } from "@/components/PoolsSectionGuide";
+
+export const dynamic = "force-dynamic";
 
 async function getPools() {
   const supabase = await createClient();
@@ -27,28 +30,30 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen">
       <HomeHero />
-      <section id="pools" className="section">
+      <section id="pools" className="section" data-guide="pools-section">
         <div className="container-wide">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="heading-2">Active Shipping Pools</h2>
-                <p className="text-body mt-2">Choose a destination and pledge your space</p>
+          <PoolsSectionGuide hasPools={pools.length > 0}>
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="heading-2">Active Shipping Pools</h2>
+                  <p className="text-body mt-2">Choose a destination and pledge your space</p>
+                </div>
+                <Link href="/pricing" className="btn-ghost hidden sm:inline-flex">
+                  Pricing
+                </Link>
               </div>
-              <Link href="/pricing" className="btn-ghost hidden sm:inline-flex">
-                Pricing
-              </Link>
+              {pools.length > 0 ? (
+                <div className="flex flex-col gap-6">
+                  {pools.map((pool, index) => (
+                    <PoolCard key={pool.pool_id} pool={pool} index={index} />
+                  ))}
+                </div>
+              ) : (
+                <EmptyPoolsState />
+              )}
             </div>
-            {pools.length > 0 ? (
-              <div className="flex flex-col gap-6">
-                {pools.map((pool, index) => (
-                  <PoolCard key={pool.pool_id} pool={pool} index={index} />
-                ))}
-              </div>
-            ) : (
-              <EmptyPoolsState />
-            )}
-          </div>
+          </PoolsSectionGuide>
         </div>
       </section>
       <HowItWorks />

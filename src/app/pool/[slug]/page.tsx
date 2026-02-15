@@ -6,12 +6,16 @@ import { getAdminSettings } from "@/lib/get-admin-settings";
 import type { PoolStats } from "@/lib/types";
 import { HorizontalThermometer } from "@/components/AnimatedThermometer";
 import { CollapsibleCalculator } from "@/components/CollapsibleCalculator";
-import { CollapsiblePledgeCard } from "@/components/CollapsiblePledgeCard";
+import { PoolPagePledgeGuide } from "@/components/PoolPagePledgeGuide";
 import { PoolTrackingUpdates } from "@/components/PoolTrackingUpdates";
 import { RouteRealityBlock } from "@/components/RouteRealityBlock";
 import { PROHIBITED_ITEMS } from "@/lib/faq";
-import { SHIPPING_EMOJI } from "@/lib/constants";
+import { SHIPPING_EMOJI, DEFAULT_ORIGIN_LABEL } from "@/lib/constants";
 import type { Metadata } from "next";
+import { WhatsAppShareButton } from "@/components/WhatsAppShare";
+import { ShipWindowCountdown } from "@/components/ShipWindowCountdown";
+
+export const dynamic = "force-dynamic";
 
 type PoolPageProps = { params: Promise<{ slug: string }> };
 
@@ -86,7 +90,7 @@ export default async function PoolPage({ params }: PoolPageProps) {
           </div>
           <h1 className="heading-1 mb-6">{stats.title}</h1>
           <p className="text-body mb-2">
-            {stats.destination_city} · {stats.container_type} container
+            {stats.origin_region || DEFAULT_ORIGIN_LABEL} → {stats.destination_city} · {stats.container_type} container
           </p>
           {(stats.sponsor_name || stats.sponsor_company) && (
             <p className="text-sm text-gray-500 mb-6">
@@ -94,6 +98,11 @@ export default async function PoolPage({ params }: PoolPageProps) {
             </p>
           )}
           {!(stats.sponsor_name || stats.sponsor_company) && <div className="mb-6" />}
+          {stats.ships_at && (
+            <div className="mb-4">
+              <ShipWindowCountdown shipsAt={stats.ships_at} />
+            </div>
+          )}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard
               value={`${Number(stats.pct_full).toFixed(0)}%`}
@@ -122,6 +131,14 @@ export default async function PoolPage({ params }: PoolPageProps) {
               value={String(stats.pledge_count)}
               label="Pledges"
               color="orange"
+            />
+          </div>
+          <div className="mt-4">
+            <WhatsAppShareButton
+              poolTitle={stats.title}
+              poolSlug={stats.slug}
+              pctFull={Number(stats.pct_full)}
+              variant="pool"
             />
           </div>
         </div>
@@ -159,7 +176,7 @@ export default async function PoolPage({ params }: PoolPageProps) {
 
           <div className="space-y-6">
             {isCollecting ? (
-              <CollapsiblePledgeCard
+              <PoolPagePledgeGuide
                 poolId={stats.pool_id}
                 poolSlug={stats.slug}
                 poolTitle={stats.title}

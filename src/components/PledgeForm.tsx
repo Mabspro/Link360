@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
@@ -8,6 +8,7 @@ import { pledgeFormSchema, type PledgeFormValues } from "@/lib/validations";
 import { STANDARD_BOXES, ESTIMATE_FT3, in3ToFt3, ft3ToIn3 } from "@/lib/constants";
 import { estShippingCost, estPickupFee } from "@/lib/pricing";
 import type { PricingConfig } from "./SpacePriceCalculator";
+import { WhatsAppShareButton } from "./WhatsAppShare";
 function computeIn3(values: PledgeFormValues): number {
   const qty = values.quantity ?? 1;
   if (values.item_mode === "standard_box" && values.standard_box_code) {
@@ -33,9 +34,10 @@ interface PledgeFormProps {
   poolTitle: string;
   onSuccess?: () => void;
   pricing?: PricingConfig | null;
+  onFormInteraction?: () => void;
 }
 
-export function PledgeForm({ poolId, poolTitle, onSuccess, pricing }: PledgeFormProps) {
+export function PledgeForm({ poolId, poolSlug, poolTitle, onSuccess, pricing, onFormInteraction }: PledgeFormProps) {
   const [submitted, setSubmitted] = useState(false);
   const [packingFile, setPackingFile] = useState<File | null>(null);
   const {
@@ -67,6 +69,13 @@ export function PledgeForm({ poolId, poolTitle, onSuccess, pricing }: PledgeForm
   useEffect(() => {
     if (itemMode === "estimate" && !values.estimate_category) setValue("estimate_category", "medium");
   }, [itemMode, setValue, values.estimate_category]);
+
+  const formInteractionFired = useRef(false);
+  const handleFormInteraction = () => {
+    if (formInteractionFired.current) return;
+    formInteractionFired.current = true;
+    onFormInteraction?.();
+  };
 
   async function onSubmit(data: PledgeFormValues) {
     setError("root", { message: "" });
@@ -130,18 +139,30 @@ export function PledgeForm({ poolId, poolTitle, onSuccess, pricing }: PledgeForm
     onSuccess?.();
   }
 
+  // Dynamic pickup labels from admin_settings
+  const inCityFee = pricing?.in_city_stop_fee ?? 25;
+  const outCityBase = pricing?.out_of_city_base_fee ?? 25;
+  const outCityPerBox = pricing?.out_of_city_per_box_fee ?? 15;
+
   if (submitted) {
     return (
       <div className="space-y-4">
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-center">
           <p className="font-medium text-emerald-800">Thank you!</p>
           <p className="mt-1 text-sm text-emerald-700">
-            We’ve received your pledge for {poolTitle}. Check your email for confirmation.
+            We&apos;ve received your pledge for {poolTitle}. Check your email for confirmation.
           </p>
         </div>
+        <WhatsAppShareButton
+          poolTitle={poolTitle}
+          poolSlug={poolSlug}
+          pctFull={0}
+          variant="confirmation"
+          className="justify-center"
+        />
         <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-left">
           <p className="text-sm font-medium text-gray-800 mb-2">
-            When the container is close to departure, we’ll ask for:
+            When the container is close to departure, we&apos;ll ask for:
           </p>
           <ul className="text-sm text-gray-600 list-disc list-inside space-y-1">
             <li>Packing list (clear item list with values)</li>
@@ -155,7 +176,13 @@ export function PledgeForm({ poolId, poolTitle, onSuccess, pricing }: PledgeForm
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" aria-label="Pledge form">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-4"
+      aria-label="Pledge form"
+      onFocus={handleFormInteraction}
+      onInput={handleFormInteraction}
+    >
       {errors.root?.message && (
         <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
           {errors.root.message}
@@ -167,6 +194,7 @@ export function PledgeForm({ poolId, poolTitle, onSuccess, pricing }: PledgeForm
           type="email"
           {...register("user_email")}
           className="input"
+          data-guide="pledge-email"
         />
         {errors.user_email && (
           <p className="mt-1 text-sm text-red-600">{errors.user_email.message}</p>
@@ -197,8 +225,8 @@ export function PledgeForm({ poolId, poolTitle, onSuccess, pricing }: PledgeForm
           {...register("pickup_zone")}
           className="input"
         >
-          <option value="in_city">In city ($25)</option>
-          <option value="out_of_city">Out of city ($25 + $15/box)</option>
+          <option value="in_city">In city (${inCityFee})</option>
+          <option value="out_of_city">Out of city (${outCityBase} + ${outCityPerBox}/box)</option>
         </select>
         {pickupZone === "out_of_city" && (
           <input

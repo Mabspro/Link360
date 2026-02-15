@@ -39,6 +39,7 @@ export default async function EditPoolPage({
           is_public: pool.is_public,
           ships_at: pool.ships_at ? String(pool.ships_at).slice(0, 10) : "",
           target_ship_cost: pool.target_ship_cost != null ? Number(pool.target_ship_cost) : undefined,
+          origin_region: pool.origin_region ?? "",
           sponsor_id: pool.sponsor_id ?? "",
           new_sponsor: undefined,
         }}
