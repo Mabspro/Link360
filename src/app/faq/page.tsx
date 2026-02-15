@@ -1,5 +1,10 @@
 import { FAQ_ITEMS } from "@/lib/faq";
 
+export const metadata = {
+  title: "FAQ",
+  description: "How Link360 shipping works, rules, prohibited items, and common questions.",
+};
+
 export default function FAQPage() {
   return (
     <div className="container-narrow section">

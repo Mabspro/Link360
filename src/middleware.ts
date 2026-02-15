@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getAdminEmails } from "@/lib/admin-emails";
 
 const ADMIN_PREFIX = "/admin";
 
@@ -38,10 +39,7 @@ export async function middleware(request: NextRequest) {
   if (path.startsWith(ADMIN_PREFIX)) {
     if (path === "/admin" || path === "/admin/" || path === "/admin/login") {
       if (user) {
-        const adminEmails = (process.env.LINK360_ADMIN_EMAILS ?? "")
-          .split(",")
-          .map((e) => e.trim().toLowerCase())
-          .filter(Boolean);
+        const adminEmails = getAdminEmails(process.env.LINK360_ADMIN_EMAILS);
         const email = user.email?.toLowerCase();
         if (email && adminEmails.includes(email)) {
           return NextResponse.redirect(new URL("/admin/dashboard", request.url));
@@ -52,10 +50,7 @@ export async function middleware(request: NextRequest) {
     if (!user) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
     }
-    const adminEmails = (process.env.LINK360_ADMIN_EMAILS ?? "")
-      .split(",")
-      .map((e) => e.trim().toLowerCase())
-      .filter(Boolean);
+    const adminEmails = getAdminEmails(process.env.LINK360_ADMIN_EMAILS);
     const email = user.email?.toLowerCase();
     if (!email || !adminEmails.includes(email)) {
       return NextResponse.redirect(new URL("/admin/login", request.url));

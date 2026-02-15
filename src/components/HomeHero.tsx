@@ -31,7 +31,7 @@ export function HomeHero() {
               Pledge Your Space
               <ArrowRight className="w-5 h-5" />
             </Link>
-            <Link href="/pricing" className="btn-secondary btn-lg">
+            <Link href="#how-it-works" className="btn-secondary btn-lg">
               See How It Works
             </Link>
           </div>

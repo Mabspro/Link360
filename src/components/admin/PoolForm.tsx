@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
 import { poolFormSchema, type PoolFormValues } from "@/lib/validations";
 import {
   DEFAULT_20FT_USABLE_FT3,
@@ -67,20 +68,27 @@ export function PoolForm({ poolId, defaultValues, initialSponsors = [] }: PoolFo
       });
       const j = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError("root", { message: j.error ?? (res.status === 401 ? "Please sign in again" : "Failed to save") });
+        const msg = j.error ?? (res.status === 401 ? "Please sign in again" : "Failed to save");
+        setError("root", { message: msg });
+        toast.error(msg);
         return;
       }
+      toast.success(poolId ? "Pool updated." : "Pool created.");
       router.push("/admin/dashboard");
       router.refresh();
     } catch (e) {
-      setError("root", { message: e instanceof Error ? e.message : "Something went wrong" });
+      const msg = e instanceof Error ? e.message : "Something went wrong";
+      setError("root", { message: msg });
+      toast.error(msg);
     }
   }
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit, (err) => {
-        setError("root", { message: Object.values(err).map((e) => e?.message).filter(Boolean).join(" ") || "Please fix the errors above." });
+        const msg = Object.values(err).map((e) => e?.message).filter(Boolean).join(" ") || "Please fix the errors above.";
+        setError("root", { message: msg });
+        toast.error(msg);
       })}
       className="mt-6 max-w-md space-y-4"
     >

@@ -8,13 +8,31 @@ import { HorizontalThermometer } from "@/components/AnimatedThermometer";
 import { CollapsibleCalculator } from "@/components/CollapsibleCalculator";
 import { CollapsiblePledgeCard } from "@/components/CollapsiblePledgeCard";
 import { PoolTrackingUpdates } from "@/components/PoolTrackingUpdates";
+import { RouteRealityBlock } from "@/components/RouteRealityBlock";
 import { PROHIBITED_ITEMS } from "@/lib/faq";
+import { SHIPPING_EMOJI } from "@/lib/constants";
+import type { Metadata } from "next";
 
-export default async function PoolPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+type PoolPageProps = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: PoolPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.from("pool_stats").select("title, destination_city").eq("slug", slug).single();
+    if (data?.title) {
+      return {
+        title: data.title,
+        description: `Pledge your space for ${data.title}. ${data.destination_city ?? "Zambia"}. Group container shipping from NorCal.`,
+      };
+    }
+  } catch {
+    // ignore
+  }
+  return { title: "Shipping Pool" };
+}
+
+export default async function PoolPage({ params }: PoolPageProps) {
   const { slug } = await params;
   let stats: PoolStats | null = null;
   let updates: { id: string; pool_id: string; kind: string; title: string | null; body: string | null; created_at: string }[] = [];
@@ -63,7 +81,7 @@ export default async function PoolPage({
             ← Back to pools
           </Link>
           <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-            <span>🚢</span>
+            <span>{SHIPPING_EMOJI}</span>
             <span>Active Pool</span>
           </div>
           <h1 className="heading-1 mb-6">{stats.title}</h1>
@@ -136,6 +154,7 @@ export default async function PoolPage({
                 Full FAQ and rules →
               </Link>
             </div>
+            <RouteRealityBlock />
           </div>
 
           <div className="space-y-6">

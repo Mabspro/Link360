@@ -17,19 +17,19 @@ export function CollapsiblePledgeCard({ poolId, poolSlug, poolTitle, pricing }: 
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="card overflow-hidden">
+    <div className="card overflow-hidden border-l-4 border-l-ocean bg-blue-50/40 shadow-sm">
       <button
         type="button"
         onClick={() => setExpanded((e) => !e)}
-        className="w-full flex items-center justify-between gap-4 p-6 text-left hover:bg-gray-50/80 transition-colors"
+        className="w-full flex items-center justify-between gap-4 p-6 text-left hover:bg-blue-100/50 transition-colors rounded-r-xl"
       >
         <div>
-          <h2 className="heading-3 mb-1">Make your pledge</h2>
-          <p className="text-sm text-gray-600">
+          <h2 className="heading-3 mb-1 text-zambia-green">Make your pledge</h2>
+          <p className="text-sm text-green-800/90">
             No payment now. We&apos;ll contact you when the container is confirmed.
           </p>
         </div>
-        <span className="text-gray-400 flex-shrink-0">
+        <span className="text-zambia-green/80 flex-shrink-0">
           {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
         </span>
       </button>

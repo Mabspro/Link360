@@ -49,7 +49,7 @@ export function HowItWorks() {
   const [expandedStep, setExpandedStep] = useState<number | null>(null);
 
   return (
-    <section className="section bg-gray-50">
+    <section id="how-it-works" className="section bg-gray-50">
       <div className="container-wide">
         <div className="max-w-4xl mx-auto">
           <h2 className="heading-2 text-center mb-2">How the community model works</h2>

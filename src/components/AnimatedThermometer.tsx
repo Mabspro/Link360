@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, useSpring, useTransform } from "framer-motion";
+import { SHIPPING_EMOJI } from "@/lib/constants";
 
 interface AnimatedThermometerProps {
   current: number;
@@ -214,7 +215,7 @@ export function HorizontalThermometer({
           animate={{ left: `${percentage}%` }}
           transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
         >
-          🚢
+          {SHIPPING_EMOJI}
         </motion.div>
       </div>
       <div className="flex justify-between mt-2 text-xs text-gray-500">

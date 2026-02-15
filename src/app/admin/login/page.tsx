@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { createClient } from "@/lib/supabase/client";
 
 export default function AdminLoginPage() {
@@ -20,8 +21,10 @@ export default function AdminLoginPage() {
     setLoading(false);
     if (err) {
       setError(err.message);
+      toast.error(err.message);
       return;
     }
+    toast.success("Signed in.");
     router.push("/admin/dashboard");
     router.refresh();
   }
@@ -37,6 +40,7 @@ export default function AdminLoginPage() {
     setLoading(false);
     if (err) {
       setError(err.message);
+      toast.error(err.message);
       return;
     }
     if (data?.url) window.location.href = data.url;

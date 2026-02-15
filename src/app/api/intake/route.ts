@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/server";
+import { checkIntakeRateLimit } from "@/lib/rate-limit";
 import { z } from "zod";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -21,6 +22,14 @@ const intakeFormSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    const rate = checkIntakeRateLimit(request);
+    if (!rate.ok) {
+      return NextResponse.json(
+        { error: "Too many uploads. Please try again in a minute." },
+        { status: 429 }
+      );
+    }
+
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
     const pool_id = formData.get("pool_id") as string | null;

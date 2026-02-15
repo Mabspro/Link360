@@ -174,8 +174,8 @@ export function SpacePriceCalculator({ embedded, pricing }: SpacePriceCalculator
 
       <div className="mt-5 rounded-xl bg-gray-50 p-4">
         <div className="grid grid-cols-2 gap-3 text-sm">
-          <CalcLine label="Volume" value={`${calc.volumeIn3.toLocaleString()} in³`} />
-          <CalcLine label="Volume" value={`${calc.volumeFt3.toFixed(2)} ft³`} />
+          <CalcLine label="Volume (in³)" value={calc.volumeIn3.toLocaleString()} />
+          <CalcLine label="Volume (ft³)" value={calc.volumeFt3.toFixed(2)} />
           <CalcLine label="Base shipping" value={money(calc.baseShipping)} />
           <CalcLine label="Pickup fee" value={money(calc.pickupFee)} />
           <CalcLine

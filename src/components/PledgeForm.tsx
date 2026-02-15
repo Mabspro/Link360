@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
 import { pledgeFormSchema, type PledgeFormValues } from "@/lib/validations";
 import { STANDARD_BOXES, ESTIMATE_FT3, in3ToFt3, ft3ToIn3 } from "@/lib/constants";
 import { estShippingCost, estPickupFee } from "@/lib/pricing";
@@ -85,7 +86,9 @@ export function PledgeForm({ poolId, poolTitle, onSuccess, pricing }: PledgeForm
       });
       if (!intakeRes.ok) {
         const j = await intakeRes.json().catch(() => ({}));
-        setError("root", { message: j.error ?? "Upload failed. You can submit without the file." });
+        const msg = j.error ?? "Upload failed. You can submit without the file.";
+        setError("root", { message: msg });
+        toast.error(msg);
         return;
       }
     }
@@ -117,20 +120,36 @@ export function PledgeForm({ poolId, poolTitle, onSuccess, pricing }: PledgeForm
 
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
-      setError("root", { message: j.error ?? "Failed to submit pledge" });
+      const msg = j.error ?? "Failed to submit pledge";
+      setError("root", { message: msg });
+      toast.error(msg);
       return;
     }
     setSubmitted(true);
+    toast.success("Pledge received! Check your email for confirmation.");
     onSuccess?.();
   }
 
   if (submitted) {
     return (
-      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-center">
-        <p className="font-medium text-emerald-800">Thank you!</p>
-        <p className="mt-1 text-sm text-emerald-700">
-          We’ve received your pledge for {poolTitle}. Check your email for confirmation.
-        </p>
+      <div className="space-y-4">
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-center">
+          <p className="font-medium text-emerald-800">Thank you!</p>
+          <p className="mt-1 text-sm text-emerald-700">
+            We’ve received your pledge for {poolTitle}. Check your email for confirmation.
+          </p>
+        </div>
+        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-left">
+          <p className="text-sm font-medium text-gray-800 mb-2">
+            When the container is close to departure, we’ll ask for:
+          </p>
+          <ul className="text-sm text-gray-600 list-disc list-inside space-y-1">
+            <li>Packing list (clear item list with values)</li>
+            <li>Invoice or valuation</li>
+            <li>Receiver details in Zambia</li>
+            <li>Any permits, if applicable</li>
+          </ul>
+        </div>
       </div>
     );
   }
@@ -299,6 +318,9 @@ export function PledgeForm({ poolId, poolTitle, onSuccess, pricing }: PledgeForm
       >
         {isSubmitting ? "Submitting…" : "Submit pledge"}
       </button>
+      <p className="text-center text-xs text-zinc-500">
+        Uploading a packing list early helps avoid border delays.
+      </p>
     </form>
   );
 }

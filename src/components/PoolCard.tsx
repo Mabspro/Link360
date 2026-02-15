@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { MapPin, Package, DollarSign, Users, Clock, ArrowRight } from "lucide-react";
 import type { PoolStats } from "@/lib/types";
+import { SHIPPING_EMOJI } from "@/lib/constants";
 
 interface PoolCardProps {
   pool: PoolStats;
@@ -52,7 +53,7 @@ export function PoolCard({ pool, index = 0 }: PoolCardProps) {
           <div className="p-6 pb-4">
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2">
-                <span className="text-2xl">🚢</span>
+                <span className="text-2xl">{SHIPPING_EMOJI}</span>
                 <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
                   {pool.title}
                 </h3>

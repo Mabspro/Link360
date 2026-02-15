@@ -2,15 +2,20 @@ import { NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { sendPledgeConfirmation } from "@/lib/email";
 import { sendAdminPledgeNotification } from "@/lib/email";
+import { getAdminEmails } from "@/lib/admin-emails";
+import { checkPledgeRateLimit } from "@/lib/rate-limit";
 import { pledgeApiSchema } from "@/lib/validations";
-
-const ADMIN_EMAILS = (process.env.LINK360_ADMIN_EMAILS ?? "")
-  .split(",")
-  .map((e) => e.trim())
-  .filter(Boolean);
 
 export async function POST(request: Request) {
   try {
+    const rate = checkPledgeRateLimit(request);
+    if (!rate.ok) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again in a minute." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const parsed = pledgeApiSchema.safeParse(body);
     if (!parsed.success) {
@@ -106,6 +111,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    console.info(
+      JSON.stringify({
+        type: "pledge_created",
+        pool_id,
+        user_email: user_email.trim().toLowerCase(),
+        ft3: Number(computed_ft3),
+        pickup_zone,
+        timestamp: new Date().toISOString(),
+      })
+    );
+
     const poolTitle = poolRow.title ?? "Shipping pool";
 
     await sendPledgeConfirmation({
@@ -118,9 +134,10 @@ export async function POST(request: Request) {
     });
 
     const estRevenue = Number(est_shipping_cost);
-    if (ADMIN_EMAILS.length > 0) {
+    const adminEmails = getAdminEmails(process.env.LINK360_ADMIN_EMAILS);
+    if (adminEmails.length > 0) {
       await sendAdminPledgeNotification({
-        adminEmails: ADMIN_EMAILS,
+        adminEmails,
         poolTitle,
         userName: user_name,
         userEmail: user_email,

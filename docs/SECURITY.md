@@ -52,7 +52,14 @@ Security posture and deployment checklist for the POC. This site handles pledges
 
 ---
 
-## 7. Deployment checklist
+## 7. Rate limiting & behavioral logging
+
+- **Rate limiting (in-memory, IP-based):** `POST /api/pledges` and `POST /api/intake` are throttled per client IP (via `x-forwarded-for` / `x-real-ip`). Limits: 10 pledges per IP per minute, 5 intake uploads per IP per minute. Returns 429 with a clear message when exceeded. In serverless, state resets on cold start; for cross-instance limits use Upstash Redis or similar later.
+- **Pledge-created log:** On successful pledge insert, the server logs a single structured JSON line to stdout (e.g. Vercel logs): `{ type: "pledge_created", pool_id, user_email, ft3, pickup_zone, timestamp }`. No PII beyond what’s already in the DB; used as a behavioral dataset for the coordination experiment.
+
+---
+
+## 8. Deployment checklist
 
 - [ ] All migrations (001–006) applied in Supabase; RLS enabled.
 - [ ] Env vars set in Vercel (or host): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `LINK360_ADMIN_EMAILS`. Optional: `RESEND_API_KEY`, `EMAIL_FROM`, `NEXT_PUBLIC_CONTACT_EMAIL`.
@@ -62,9 +69,27 @@ Security posture and deployment checklist for the POC. This site handles pledges
 
 ---
 
-## 8. Optional hardening (post-POC)
+## 9. Pre-launch checklist (non-technical)
 
-- **Rate limiting:** Add rate limits on `POST /api/pledges` and `POST /api/intake` (e.g. by IP or by email) to reduce abuse.
-- **CSP:** Add Content-Security-Policy header if you add inline scripts or third-party widgets.
-- **File validation:** Validate file magic bytes for intake uploads in addition to MIME.
-- **Audit:** Periodically review Supabase logs and admin actions.
+Before announcing the next pool:
+
+1. [ ] Set `NEXT_PUBLIC_CONTACT_EMAIL` in production.
+2. [ ] Confirm Resend production domain is verified (if using real email).
+3. [ ] Confirm Supabase Storage bucket permissions for intake (bucket exists, private).
+4. [ ] Run a live pledge with a real email; confirm confirmation and admin notification.
+5. [ ] Confirm duplicate guard: second pledge with same email for same pool returns clear message (409).
+6. [ ] Confirm 404 page renders on a bad pool slug (e.g. `/pool/nonexistent`).
+7. [ ] Confirm `admin_settings` row exists and pricing matches expectations (calculator and pledge form use it).
+
+Then freeze code for the run.
+
+---
+
+## 10. Optional hardening — priority
+
+| Priority | Item | Status | Notes |
+|----------|------|--------|-------|
+| **High** | Rate limiting on pledges + intake | ✅ Done | In-memory, IP-based; 429 when exceeded. |
+| **Medium** | Magic-byte validation for intake files | Optional | Add when intake is broader or long-term storage; verify file signature, not just MIME. |
+| **Low** | Content-Security-Policy | Optional | Add when you add analytics, third-party widgets, or inline scripts. Not required while the app has no unsafe eval or third-party embeds. |
+| **Ongoing** | Audit | Optional | Periodically review Supabase logs and admin actions. |

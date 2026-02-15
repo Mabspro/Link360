@@ -292,6 +292,7 @@ RLS: public can read public pools, admin_settings, and insert pledges; intake_do
 ## Docs
 
 - [SECURITY.md](docs/SECURITY.md) – Security posture, validation, RLS, headers, deployment checklist
+- [IMPLEMENTATION_STRATEGY_CORRIDOR.md](docs/IMPLEMENTATION_STRATEGY_CORRIDOR.md) – Corridor reality: must-includes and nice-to-haves from Shipping Reality Map + Research Analysis
 - [SITE_EVALUATION.md](docs/SITE_EVALUATION.md) – Full evaluation, POC scope, build sequence, B/C direction
 - [SPRINT_REPORT_POC_HARDENING_UPLOAD.md](docs/SPRINT_REPORT_POC_HARDENING_UPLOAD.md) – Foundation + pricing from DB + intake upload
 - [BACKEND_PLEDGES.md](docs/BACKEND_PLEDGES.md) – Pledge API logic and mapping

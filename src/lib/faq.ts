@@ -26,4 +26,12 @@ export const FAQ_ITEMS = [
     q: "Where do containers go?",
     a: "NorCal → Lusaka or Ndola, Zambia. Each pool is for one destination and one container type (20ft or 40ft).",
   },
+  {
+    q: "Why do you need documents before the container arrives?",
+    a: "Zambia requires pre-clearance before goods arrive. Submitting a packing list, invoice, and receiver details in advance helps avoid delays at the border. Customs clearance (including ASYCUDA) is smoother when documents are ready.",
+  },
+  {
+    q: "Do you support solar or green logistics?",
+    a: "We’re aware of Zambia’s focus on energy access and green growth. Our current pools are general cargo; we’re keeping an eye on demand for dedicated energy-equipment lanes and will adapt as the corridor evolves.",
+  },
 ];

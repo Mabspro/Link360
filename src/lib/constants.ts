@@ -33,6 +33,9 @@ export const DEFAULT_IN_CITY_STOP_FEE = 25;
 export const DEFAULT_OUT_OF_CITY_BASE_FEE = 25;
 export const DEFAULT_OUT_OF_CITY_PER_BOX_FEE = 15;
 
+/** UI: shipping/corridor emoji used in pool cards and headers */
+export const SHIPPING_EMOJI = "🚢";
+
 /** Container defaults */
 export const DEFAULT_20FT_USABLE_FT3 = 1170;
 export const DEFAULT_40FT_USABLE_FT3 = 2390;
