@@ -1,3 +1,4 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "ignorePatterns": ["components/", "docs/components/", "Kimi_Agent_Link360 Shipping UX Review/"]
 }

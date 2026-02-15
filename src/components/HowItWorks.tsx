@@ -69,12 +69,16 @@ export function HowItWorks() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.06 }}
-                  className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden"
+                  whileHover={isCollapsible ? { y: -2, transition: { duration: 0.2 } } : undefined}
+                  className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
                 >
                   <button
                     type="button"
                     onClick={() => isCollapsible && setExpandedStep(isExpanded ? null : index)}
-                    className={`w-full flex items-center gap-4 p-5 text-left ${isCollapsible ? "cursor-pointer hover:bg-gray-50/80 transition-colors" : ""}`}
+                    className={`w-full flex items-center gap-4 p-5 text-left rounded-2xl focus:outline-none ${isCollapsible ? "cursor-pointer hover:bg-gray-50/80 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" : ""}`}
+                    aria-expanded={isCollapsible ? isExpanded : undefined}
+                    aria-controls={isCollapsible ? `how-step-${index}` : undefined}
+                    id={isCollapsible ? `how-step-btn-${index}` : undefined}
                   >
                     <div className="w-11 h-11 rounded-xl bg-ocean text-white flex items-center justify-center flex-shrink-0">
                       <Icon className="w-5 h-5" />
@@ -94,6 +98,9 @@ export function HowItWorks() {
                   <AnimatePresence>
                     {isCollapsible && isExpanded && (
                       <motion.div
+                        id={`how-step-${index}`}
+                        role="region"
+                        aria-labelledby={`how-step-btn-${index}`}
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}

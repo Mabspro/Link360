@@ -17,7 +17,9 @@ export function CollapsibleCalculator({ pricing }: CollapsibleCalculatorProps = 
       <button
         type="button"
         onClick={() => setExpanded((e) => !e)}
-        className="w-full flex items-center justify-between gap-4 p-6 text-left hover:bg-gray-50/80 transition-colors"
+        aria-expanded={expanded}
+        aria-controls="calculator-panel"
+        className="w-full flex items-center justify-between gap-4 p-6 text-left hover:bg-gray-50/80 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
       >
         <div>
           <h2 className="heading-4 mb-1">Space + price calculator</h2>
@@ -32,6 +34,8 @@ export function CollapsibleCalculator({ pricing }: CollapsibleCalculatorProps = 
       <AnimatePresence>
         {expanded && (
           <motion.div
+            id="calculator-panel"
+            role="region"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}

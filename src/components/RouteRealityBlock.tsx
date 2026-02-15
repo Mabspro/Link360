@@ -12,7 +12,9 @@ export function RouteRealityBlock() {
       <button
         type="button"
         onClick={() => setExpanded((e) => !e)}
-        className="w-full flex items-center justify-between gap-4 p-6 text-left hover:bg-gray-50/80 transition-colors"
+        aria-expanded={expanded}
+        aria-controls="route-reality-panel"
+        className="w-full flex items-center justify-between gap-4 p-6 text-left hover:bg-gray-50/80 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
       >
         <div>
           <h3 className="font-semibold text-gray-900 mb-1">Transit & timing</h3>
@@ -27,6 +29,8 @@ export function RouteRealityBlock() {
       <AnimatePresence>
         {expanded && (
           <motion.div
+            id="route-reality-panel"
+            role="region"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}

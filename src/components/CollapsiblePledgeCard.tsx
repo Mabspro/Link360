@@ -21,10 +21,12 @@ export function CollapsiblePledgeCard({ poolId, poolSlug, poolTitle, pricing }: 
       <button
         type="button"
         onClick={() => setExpanded((e) => !e)}
-        className="w-full flex items-center justify-between gap-4 p-6 text-left hover:bg-blue-100/50 transition-colors rounded-r-xl"
+        aria-expanded={expanded}
+        aria-controls="pledge-form-panel"
+        className="w-full flex items-center justify-between gap-4 p-6 text-left hover:bg-blue-100/50 transition-colors rounded-r-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
       >
         <div>
-          <h2 className="heading-3 mb-1 text-zambia-green">Make your pledge</h2>
+          <h2 id="pledge-form-heading" className="heading-3 mb-1 text-zambia-green">Make your pledge</h2>
           <p className="text-sm text-green-800/90">
             No payment now. We&apos;ll contact you when the container is confirmed.
           </p>
@@ -36,6 +38,9 @@ export function CollapsiblePledgeCard({ poolId, poolSlug, poolTitle, pricing }: 
       <AnimatePresence>
         {expanded && (
           <motion.div
+            id="pledge-form-panel"
+            role="region"
+            aria-labelledby="pledge-form-heading"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}

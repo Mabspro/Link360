@@ -155,9 +155,9 @@ export function PledgeForm({ poolId, poolTitle, onSuccess, pricing }: PledgeForm
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" aria-label="Pledge form">
       {errors.root?.message && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+        <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
           {errors.root.message}
         </div>
       )}

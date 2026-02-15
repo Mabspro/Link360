@@ -48,7 +48,7 @@
   }
 
   .btn-secondary {
-    @apply btn bg-transparent border-2 border-ocean text-ocean hover:bg-ocean hover:text-white;
+    @apply btn bg-transparent border-2 border-ocean text-ocean hover:bg-ocean hover:text-white hover:-translate-y-0.5 active:translate-y-0;
   }
 
   .btn-ghost {
