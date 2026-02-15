@@ -24,6 +24,9 @@ export function Nav() {
           <Link href="/faq" className="text-gray-600 hover:text-gray-900 font-medium">
             FAQ
           </Link>
+          <Link href="/sponsor" className="text-gray-600 hover:text-gray-900 font-medium">
+            Sponsor
+          </Link>
           <Link
             href="/admin"
             className="text-gray-500 hover:text-gray-700"

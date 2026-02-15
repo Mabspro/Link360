@@ -17,6 +17,9 @@ export function Footer() {
             <Link href="/contact" className="text-gray-600 hover:text-gray-900">
               Contact
             </Link>
+            <Link href="/sponsor" className="text-gray-600 hover:text-gray-900">
+              Sponsor
+            </Link>
             <Link href="/admin" className="text-gray-600 hover:text-gray-900">
               Admin
             </Link>

@@ -8,9 +8,11 @@ const WINDOW_MS = 60 * 1000; // 1 minute
 
 const pledgeTimestamps: Map<string, number[]> = new Map();
 const intakeTimestamps: Map<string, number[]> = new Map();
+const sponsorRequestTimestamps: Map<string, number[]> = new Map();
 
 const MAX_PLEDGES_PER_WINDOW = 10;
 const MAX_INTAKE_PER_WINDOW = 5;
+const MAX_SPONSOR_REQUESTS_PER_WINDOW = 5;
 
 function getClientIp(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
@@ -47,5 +49,18 @@ export function checkIntakeRateLimit(request: Request): { ok: true } | { ok: fal
   }
   times.push(now);
   intakeTimestamps.set(ip, times);
+  return { ok: true };
+}
+
+export function checkSponsorRequestRateLimit(request: Request): { ok: true } | { ok: false; status: 429 } {
+  const ip = getClientIp(request);
+  const now = Date.now();
+  let times = sponsorRequestTimestamps.get(ip) ?? [];
+  times = pruneOld(times, WINDOW_MS);
+  if (times.length >= MAX_SPONSOR_REQUESTS_PER_WINDOW) {
+    return { ok: false, status: 429 };
+  }
+  times.push(now);
+  sponsorRequestTimestamps.set(ip, times);
   return { ok: true };
 }

@@ -20,6 +20,9 @@ export default async function AdminLayout({
               <Link href="/admin/dashboard" className="text-zinc-600 hover:text-zinc-900">
                 Pools
               </Link>
+              <Link href="/admin/sponsor-requests" className="text-zinc-600 hover:text-zinc-900">
+                Sponsor requests
+              </Link>
               <Link href="/" className="text-zinc-500 hover:underline">
                 Public site
               </Link>

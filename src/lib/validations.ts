@@ -62,6 +62,7 @@ export const poolFormSchema = z.object({
   is_public: z.boolean(),
   ships_at: z.string().optional().nullable(),
   target_ship_cost: z.coerce.number().min(0).optional().nullable(),
+  origin_region: z.string().optional().nullable(),
   sponsor_id: z
     .union([z.string().uuid(), z.literal("__new__"), z.literal("")])
     .optional()
@@ -123,3 +124,14 @@ export const pledgeApiSchema = z
   });
 
 export type PledgeApiBody = z.infer<typeof pledgeApiSchema>;
+
+/** Server-side validation for POST /api/sponsor-request */
+export const sponsorRequestSchema = z.object({
+  name: z.string().min(1, "Name required").max(200),
+  email: z.string().email("Valid email required"),
+  phone: z.string().max(50).optional().nullable(),
+  company: z.string().max(200).optional().nullable(),
+  message: z.string().max(2000).optional().nullable(),
+});
+
+export type SponsorRequestBody = z.infer<typeof sponsorRequestSchema>;
