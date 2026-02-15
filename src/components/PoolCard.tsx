@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { MapPin, Package, DollarSign, Users, Clock, ArrowRight } from "lucide-react";
+import { MapPin, Package, DollarSign, Users, Clock, ArrowRight, Camera } from "lucide-react";
 import type { PoolStats } from "@/lib/types";
 import { SHIPPING_EMOJI, DEFAULT_ORIGIN_LABEL } from "@/lib/constants";
 import { setPledgeIntent } from "@/lib/pledge-guide";
@@ -158,7 +158,8 @@ export function PoolCard({ pool, index = 0 }: PoolCardProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 p-6 pt-4">
+          {/* 3-column: stats | stats | container image */}
+          <div className="grid grid-cols-2 md:grid-cols-[1fr_1fr_120px] gap-4 p-6 pt-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
                 <Package className="w-5 h-5 text-blue-600" />
@@ -184,6 +185,21 @@ export function PoolCard({ pool, index = 0 }: PoolCardProps) {
                   {pool.ship_cost_reach_pct != null ? "est. ship cost reach" : "est. revenue"}
                 </div>
               </div>
+            </div>
+            {/* Container image — reality anchor */}
+            <div className="hidden md:flex row-span-2 aspect-square rounded-xl border border-gray-200 bg-gray-50 items-center justify-center overflow-hidden">
+              {pool.container_image_url ? (
+                <img
+                  src={pool.container_image_url}
+                  alt="Container"
+                  className="w-full h-full object-cover rounded-xl"
+                />
+              ) : (
+                <div className="flex flex-col items-center gap-1.5">
+                  <Camera className="w-5 h-5 text-gray-300" />
+                  <span className="text-[10px] text-gray-400 text-center leading-tight px-1">View Container</span>
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center">

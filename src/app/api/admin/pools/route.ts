@@ -51,6 +51,7 @@ export async function POST(request: Request) {
     const shipsAt = data.ships_at?.trim() || null;
     const targetShipCost = data.target_ship_cost != null && data.target_ship_cost > 0 ? data.target_ship_cost : null;
     const originRegion = data.origin_region?.trim() || null;
+    const containerImageUrl = data.container_image_url?.trim() || null;
     const { data: row, error } = await supabase
       .from("pools")
       .insert({
@@ -65,6 +66,7 @@ export async function POST(request: Request) {
         ships_at: shipsAt,
         target_ship_cost: targetShipCost,
         origin_region: originRegion,
+        container_image_url: containerImageUrl,
         sponsor_id: sponsorId,
       })
       .select("id")

@@ -14,6 +14,7 @@ import { SHIPPING_EMOJI, DEFAULT_ORIGIN_LABEL } from "@/lib/constants";
 import type { Metadata } from "next";
 import { WhatsAppShareButton } from "@/components/WhatsAppShare";
 import { ShipWindowCountdown } from "@/components/ShipWindowCountdown";
+import { ContainerImageBlock } from "@/components/ContainerImageModal";
 
 export const dynamic = "force-dynamic";
 
@@ -172,6 +173,10 @@ export default async function PoolPage({ params }: PoolPageProps) {
               </Link>
             </div>
             <RouteRealityBlock />
+            <ContainerImageBlock
+              imageUrl={stats.container_image_url ?? null}
+              poolTitle={stats.title}
+            />
           </div>
 
           <div className="space-y-6">

@@ -7,7 +7,17 @@ import { HeroCtaWithIntent } from "./HeroCtaWithIntent";
 
 export function HomeHero() {
   return (
-    <section className="relative bg-gradient-to-b from-blue-50 to-white py-20 md:py-32 overflow-hidden">
+    <section className="relative py-20 md:py-32 overflow-hidden">
+      {/* Subtle port background — credibility anchor */}
+      <div className="absolute inset-0 -z-10">
+        <img
+          src="/images/hero-port.jpg"
+          alt=""
+          className="w-full h-full object-cover opacity-[0.22]"
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0A2540]/50 via-blue-50/70 to-white/95" />
+      </div>
       <div className="container-wide text-center relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -53,8 +63,8 @@ export function HomeHero() {
           </div>
         </motion.div>
       </div>
-      <div className="absolute top-20 left-10 w-64 h-64 bg-blue-200/30 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-orange-200/30 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-20 left-10 w-64 h-64 bg-blue-200/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-orange-200/20 rounded-full blur-3xl pointer-events-none" />
     </section>
   );
 }

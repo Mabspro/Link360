@@ -63,6 +63,7 @@ export const poolFormSchema = z.object({
   ships_at: z.string().optional().nullable(),
   target_ship_cost: z.coerce.number().min(0).optional().nullable(),
   origin_region: z.string().optional().nullable(),
+  container_image_url: z.string().url().optional().nullable(),
   sponsor_id: z
     .union([z.string().uuid(), z.literal("__new__"), z.literal("")])
     .optional()

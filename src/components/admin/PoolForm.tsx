@@ -23,6 +23,8 @@ interface PoolFormProps {
 export function PoolForm({ poolId, defaultValues, initialSponsors = [] }: PoolFormProps) {
   const router = useRouter();
   const [sponsors, setSponsors] = useState<Pick<Sponsor, "id" | "name" | "email" | "company">[]>(initialSponsors);
+  const [containerImageFile, setContainerImageFile] = useState<File | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const {
     register,
     handleSubmit,
@@ -60,6 +62,28 @@ export function PoolForm({ poolId, defaultValues, initialSponsors = [] }: PoolFo
       } else if (!data.sponsor_id?.trim()) {
         payload.sponsor_id = null;
       }
+      // Upload container image if file selected
+      if (containerImageFile) {
+        setUploadingImage(true);
+        const imgForm = new FormData();
+        imgForm.set("file", containerImageFile);
+        if (poolId) imgForm.set("pool_id", poolId);
+        const imgRes = await fetch("/api/admin/upload-container-image", {
+          method: "POST",
+          body: imgForm,
+          credentials: "include",
+        });
+        setUploadingImage(false);
+        if (imgRes.ok) {
+          const imgJson = await imgRes.json();
+          if (imgJson.url) payload.container_image_url = imgJson.url;
+        } else {
+          const imgErr = await imgRes.json().catch(() => ({}));
+          toast.error(imgErr.error ?? "Image upload failed");
+          // Continue without image — not a blocker
+        }
+      }
+
       const url = poolId ? `/api/admin/pools/${poolId}` : "/api/admin/pools";
       const res = await fetch(url, {
         method: poolId ? "PATCH" : "POST",
@@ -216,6 +240,17 @@ export function PoolForm({ poolId, defaultValues, initialSponsors = [] }: PoolFo
             />
           </div>
         )}
+      </div>
+      <div>
+        <label className="mb-1 block text-sm font-medium">Container image</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setContainerImageFile(e.target.files?.[0] ?? null)}
+          className="w-full text-sm text-zinc-600 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-900 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
+        />
+        <p className="mt-1 text-xs text-zinc-500">Photo of the container (at yard, loading, port). Shown as credibility anchor on pool card and detail page.</p>
+        {uploadingImage && <p className="mt-1 text-xs text-blue-600">Uploading image…</p>}
       </div>
       <div>
         <label className="mb-1 block text-sm font-medium">Status</label>

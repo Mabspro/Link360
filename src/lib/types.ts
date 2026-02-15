@@ -37,6 +37,7 @@ export interface Pool {
   target_ship_cost: number | null;
   sponsor_id: string | null;
   origin_region: string | null;
+  container_image_url: string | null;
   created_at: string;
 }
 
@@ -55,6 +56,7 @@ export interface PoolStats {
   sponsor_name: string | null;
   sponsor_company: string | null;
   origin_region: string | null;
+  container_image_url: string | null;
   total_ft3: number;
   total_internal_ft3: number;
   total_paid_ft3: number;

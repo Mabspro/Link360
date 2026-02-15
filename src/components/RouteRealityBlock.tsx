@@ -37,7 +37,29 @@ export function RouteRealityBlock() {
             transition={{ duration: 0.2 }}
             className="border-t border-gray-100 overflow-hidden"
           >
-            <div className="p-6 pt-4 space-y-3 text-sm text-gray-700">
+            <div className="p-6 pt-4 space-y-4 text-sm text-gray-700">
+              {/* Route visualization */}
+              <div className="py-3">
+                <div className="flex items-center text-xs text-gray-500">
+                  <span className="font-medium text-gray-700 whitespace-nowrap">NorCal</span>
+                  <div className="flex-1 mx-3 relative">
+                    <div className="h-[2px] bg-gray-200 w-full" />
+                    <div className="absolute left-0 top-1/2 w-2.5 h-2.5 bg-blue-500 rounded-full -translate-y-1/2 border-2 border-white shadow-sm" />
+                    <div className="absolute left-1/2 top-1/2 w-2 h-2 bg-gray-300 rounded-full -translate-y-1/2 -translate-x-1/2" />
+                  </div>
+                  <span className="font-medium text-gray-500 whitespace-nowrap">Walvis Bay</span>
+                  <div className="flex-1 mx-3 relative">
+                    <div className="h-[2px] bg-gray-200 w-full" />
+                    <div className="absolute right-0 top-1/2 w-2.5 h-2.5 bg-green-500 rounded-full -translate-y-1/2 border-2 border-white shadow-sm" />
+                  </div>
+                  <span className="font-medium text-green-700 whitespace-nowrap">Lusaka</span>
+                </div>
+                <div className="flex justify-between mt-1 text-[10px] text-gray-400">
+                  <span>Origin</span>
+                  <span>Port</span>
+                  <span>Destination</span>
+                </div>
+              </div>
               <p>
                 Ocean transit depends on routing and may take several weeks.
               </p>
@@ -48,7 +70,7 @@ export function RouteRealityBlock() {
                 Zambia requires pre-clearance before arrival. Missing documents can delay release.
               </p>
               <p className="pt-2 text-gray-800 font-medium">
-                We’ll share updates at key milestones: container closing, vessel departure, arrival at Walvis Bay, and arrival in Zambia.
+                We&apos;ll share updates at key milestones: container closing, vessel departure, arrival at Walvis Bay, and arrival in Zambia.
               </p>
             </div>
           </motion.div>
