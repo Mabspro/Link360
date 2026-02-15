@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, Camera } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -9,9 +10,54 @@ interface ContainerImageModalProps {
   poolTitle: string;
 }
 
-/** Thumbnail that opens a modal when clicked. Shows placeholder if no image. */
+/** Thumbnail that opens a modal when clicked. Shows placeholder if no image.
+ *  Modal is portaled to document.body so it escapes parent <Link> click handling. */
 export function ContainerImageThumbnail({ imageUrl, poolTitle }: ContainerImageModalProps) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  const modal = (
+    <AnimatePresence>
+      {open && imageUrl && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(false); }}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="relative max-w-3xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          >
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(false); }}
+              className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <img
+              src={imageUrl}
+              alt={`Container for ${poolTitle}`}
+              className="w-full rounded-2xl"
+            />
+            <div className="p-4 text-center">
+              <p className="text-sm text-gray-600">{poolTitle}</p>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 
   return (
     <>
@@ -41,45 +87,8 @@ export function ContainerImageThumbnail({ imageUrl, poolTitle }: ContainerImageM
           </>
         )}
       </button>
-
-      <AnimatePresence>
-        {open && imageUrl && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-            onClick={() => setOpen(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="relative max-w-3xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
-                aria-label="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
-              <img
-                src={imageUrl}
-                alt={`Container for ${poolTitle}`}
-                className="w-full rounded-2xl"
-              />
-              <div className="p-4 text-center">
-                <p className="text-sm text-gray-600">{poolTitle}</p>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Portal modal to body so it escapes parent <Link> */}
+      {mounted && createPortal(modal, document.body)}
     </>
   );
 }
